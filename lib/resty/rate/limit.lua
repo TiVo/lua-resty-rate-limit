@@ -32,7 +32,7 @@ local function bump_request(connection, key, rate, interval, current_time, log_l
 
     local ok, error = redis_connection:set_keepalive(10000, 100)
     if not ok then
-        ngx.log(ngx.WARN, "failed to set keepalive: ", error)
+        ngx.log(log_level, "failed to set keepalive: ", error)
     end
 
     local remaining = rate - count
@@ -44,7 +44,7 @@ function _M.limit(config)
     if not config.connection then
         local ok, redis = pcall(require, "resty.redis")
         if not ok then
-            ngx.log(ngx.error, "failed to require redis")
+            ngx.log(log_level, "failed to require redis")
             return
         end
 
@@ -58,7 +58,7 @@ function _M.limit(config)
 
         local ok, error = redis_connection:connect(redis_config.host, redis_config.port)
         if not ok then
-            ngx.log(ngx.WARN, "redis connect error: ", error)
+            ngx.log(log_level, "redis connect error: ", error)
             return
         end
 
