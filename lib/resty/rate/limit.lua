@@ -1,8 +1,8 @@
 _M = {}
 
-local count = 0
-local remaining = 0
-local reset = 0
+-- local count = 0
+-- local remaining = 0
+-- local reset = 0
 
 local function bump_request(connection, key, rate, interval, current_time, log_level)
     local redis_connection = connection
@@ -83,7 +83,7 @@ function _M.limit(config)
         ngx.header["Content-Type"] = "application/json; charset=utf-8"
         ngx.header["Retry-After"] = retry_after
         ngx.status = 429
-        ngx.say("hello, world")
+        ngx.say('{"status_code":25,"status_message":"Your request count (' .. response.count .. ') is over the allowed limit of ' .. rate .. '."}')
         ngx.exit(ngx.HTTP_OK)
     else
         ngx.header["X-RateLimit-Limit"] = rate
