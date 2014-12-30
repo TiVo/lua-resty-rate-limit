@@ -1,4 +1,4 @@
-_M = {}
+_M = { _VERSION = "1.0" }
 
 local reset = 0
 
