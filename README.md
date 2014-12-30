@@ -2,6 +2,8 @@
 This is a OpenResty Lua and Redis powered rate limiter. You can specify the number of requests to allow within a certain timespan, ie. 40 requests within 10 seconds. With this setting (as an example), you can burst to 40 requests in a single second if you wanted, but would have to wait 9 more seconds before being allowed to issue another.
 
 ### Nginx/OpenResty Prerequisite
+You have to compule OpenResty with the `--with-http_realip_module` option.
+
 ```
 http {
     # http://serverfault.com/questions/331531/nginx-set-real-ip-from-aws-elb-load-balancer-address
