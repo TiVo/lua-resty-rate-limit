@@ -1,8 +1,6 @@
 _M = {}
 
--- local count = 0
--- local remaining = 0
--- local reset = 0
+local reset = 0
 
 local function bump_request(connection, key, rate, interval, current_time, log_level)
     local redis_connection = connection
@@ -14,7 +12,7 @@ local function bump_request(connection, key, rate, interval, current_time, log_l
     end
 
     if tonumber(count) == 1 then
-        reset = math.floor(current_time) + interval
+        local reset = math.floor(current_time) + interval
 
         local expire, error = redis_connection:expire(key, interval)
         if not expire then
@@ -27,7 +25,7 @@ local function bump_request(connection, key, rate, interval, current_time, log_l
             ngx.log(log_level, "failed to get ttl: ", error)
             return
         end
-        reset = math.floor(current_time) + ttl
+        local reset = math.floor(current_time) + ttl
     end
 
     local ok, error = redis_connection:set_keepalive(10000, 100)
@@ -41,6 +39,8 @@ local function bump_request(connection, key, rate, interval, current_time, log_l
 end
 
 function _M.limit(config)
+    local log_level = config.log_level or ngx.NOTICE
+
     if not config.connection then
         local ok, redis = pcall(require, "resty.redis")
         if not ok then
@@ -58,7 +58,7 @@ function _M.limit(config)
 
         local ok, error = redis_connection:connect(redis_config.host, redis_config.port)
         if not ok then
-            ngx.log(log_level, "redis connect error: ", error)
+            ngx.log(log_level, "failed to connect to redis: ", error)
             return
         end
 
@@ -70,7 +70,6 @@ function _M.limit(config)
     local key = config.key or ngx.var.remote_addr
     local rate = config.rate or 10
     local interval = config.interval or 1
-    local log_level = config.log_level or ngx.NOTICE
 
     local response, error = bump_request(connection, key, rate, interval, current_time, log_level)
     local retry_after = math.floor(response.reset - current_time)

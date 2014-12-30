@@ -24,7 +24,7 @@ server {
                       rate = 40,
                       interval = 10,
                       log_level = ngx.NOTICE,
-                      redis = { host = "127.0.0.1", port = 6379 } }
+                      redis = { host = "127.0.0.1", port = 6379, timeout = 1 } }
     ';
 
     include      proxy.incl;
