@@ -20,7 +20,7 @@ local function bump_request(connection, key, rate, interval, current_time, log_l
     end
 
     if tonumber(count) == 1 then
-        local reset = math.floor(current_time) + interval
+        reset = math.floor(current_time) + interval
         expire_key(redis_connection, key, interval)
     else
         local ttl, error = redis_connection:ttl(key)
@@ -32,7 +32,7 @@ local function bump_request(connection, key, rate, interval, current_time, log_l
             ttl = interval
             expire_key(redis_connection, key, interval)
         end
-        local reset = math.floor(current_time) + ttl
+        reset = math.floor(current_time) + ttl
     end
 
     local ok, error = redis_connection:set_keepalive(10000, 8)
