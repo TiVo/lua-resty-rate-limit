@@ -2,6 +2,14 @@ _M = { _VERSION = "1.0" }
 
 local reset = 0
 
+local function expire_key(redis_connection, key, interval)
+    local expire, error = redis_connection:expire(key, interval)
+    if not expire then
+        ngx.log(log_level, "failed to get ttl: ", error)
+        return
+    end
+end
+
 local function bump_request(connection, key, rate, interval, current_time, log_level)
     local redis_connection = connection
 
@@ -13,22 +21,20 @@ local function bump_request(connection, key, rate, interval, current_time, log_l
 
     if tonumber(count) == 1 then
         local reset = math.floor(current_time) + interval
-
-        local expire, error = redis_connection:expire(key, interval)
-        if not expire then
-            ngx.log(log_level, "failed to get ttl: ", error)
-            return
-        end
+        expire_key(redis_connection, key, interval)
     else
         local ttl, error = redis_connection:ttl(key)
         if not ttl then
             ngx.log(log_level, "failed to get ttl: ", error)
             return
         end
+        if ttl == -1 then
+            expire_key(redis_connection, key, interval)
+        end
         local reset = math.floor(current_time) + ttl
     end
 
-    local ok, error = redis_connection:set_keepalive(10000, 100)
+    local ok, error = redis_connection:set_keepalive(10000, 8)
     if not ok then
         ngx.log(log_level, "failed to set keepalive: ", error)
     end
@@ -72,6 +78,10 @@ function _M.limit(config)
     local interval = config.interval or 1
 
     local response, error = bump_request(connection, key, rate, interval, current_time, log_level)
+    if not response then
+        return
+    end
+
     local retry_after = math.floor(response.reset - current_time)
     if retry_after < 0 then
         retry_after = 0
