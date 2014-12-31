@@ -29,6 +29,7 @@ local function bump_request(connection, key, rate, interval, current_time, log_l
             return
         end
         if ttl == -1 then
+            ttl = interval
             expire_key(redis_connection, key, interval)
         end
         local reset = math.floor(current_time) + ttl
