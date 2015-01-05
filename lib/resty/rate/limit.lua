@@ -20,10 +20,10 @@ local function bump_request(connection, key, rate, interval, current_time, log_l
     end
 
     if tonumber(count) == 1 then
-        reset = math.floor(current_time) + interval
+        reset = (current_time + interval)
         expire_key(redis_connection, key, interval)
     else
-        local ttl, error = redis_connection:ttl(key)
+        local ttl, error = redis_connection:pttl(key)
         if not ttl then
             ngx.log(log_level, "failed to get ttl: ", error)
             return
@@ -32,7 +32,7 @@ local function bump_request(connection, key, rate, interval, current_time, log_l
             ttl = interval
             expire_key(redis_connection, key, interval)
         end
-        reset = math.floor(current_time) + ttl
+        reset = (current_time + (ttl * 0.001))
     end
 
     local ok, error = redis_connection:set_keepalive(10000, 16)
@@ -83,12 +83,12 @@ function _M.limit(config)
         return
     end
 
-    local retry_after = math.floor(response.reset - current_time)
-    if retry_after < 0 then
-        retry_after = 0
-    end
-
     if response.count > rate then
+        local retry_after = math.floor(response.reset - current_time)
+        if retry_after < 0 then
+            retry_after = 0
+        end
+
         ngx.header["Access-Control-Allow-Origin"] = "*"
         ngx.header["Content-Type"] = "application/json; charset=utf-8"
         ngx.header["Retry-After"] = retry_after
@@ -98,7 +98,7 @@ function _M.limit(config)
     else
         ngx.header["X-RateLimit-Limit"] = rate
         ngx.header["X-RateLimit-Remaining"] = math.floor(response.remaining)
-        ngx.header["X-RateLimit-Reset"] = response.reset
+        ngx.header["X-RateLimit-Reset"] = math.floor(response.reset)
     end
 end
 
