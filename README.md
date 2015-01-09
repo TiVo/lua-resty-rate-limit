@@ -21,18 +21,18 @@ http {
 ### Example OpenResty Site Config
 ```
 # Location of this Lua package
-lua_package_path "/Users/travisbell/workspace/lua-resty-rate-limit/lib/?.lua;;";
+lua_package_path "/opt/lua-resty-rate-limit/lib/?.lua;;";
 
 upstream api {
-    server unix:/var/run/api/api.sock;
+    server unix:/tmp/api.sock;
 }
 
 server {
     listen 80;
     server_name api.dev;
 
-    #access_log   /etc/openresty/logs/tmdb-api_access.log detailed;
-    error_log    /etc/openresty/logs/tmdb-api_error.log notice;
+    access_log  /var/log/openresty/api_access.log;
+    error_log   /var/log/openresty/api_error.log;
 
     location / {
         access_by_lua '
@@ -44,21 +44,14 @@ server {
                             redis_config = { host = "127.0.0.1", port = 6379, timeout = 1 } }
         ';
 
-        proxy_set_header     Host                   $host;
-        proxy_set_header     X-Server-Scheme        $scheme;
-        proxy_set_header     X-Real-IP              $remote_addr;
-        proxy_set_header     X-Forwarded-For        $remote_addr;
-        proxy_set_header     X-Forwarded-Proto      $x_forwarded_proto;
+        proxy_set_header  Host               $host;
+        proxy_set_header  X-Server-Scheme    $scheme;
+        proxy_set_header  X-Real-IP          $remote_addr;
+        proxy_set_header  X-Forwarded-For    $remote_addr;
+        proxy_set_header  X-Forwarded-Proto  $x_forwarded_proto;
 
-        proxy_set_header     X-GeoIP-Country-Code   $geoip_country_code;
-        proxy_set_header     X-GeoIP-Country-Code3  $geoip_country_code3;
-        proxy_set_header     X-GeoIP-Country-Name   $geoip_country_name;
-
-        proxy_redirect             off;
-        proxy_ignore_client_abort  off;
-        proxy_connect_timeout      1s;
-        proxy_read_timeout         60s;
-        proxy_buffers              16 16k;
+        proxy_connect_timeout  1s;
+        proxy_read_timeout     30s;
 
         proxy_pass   http://api;
     }
