@@ -24,7 +24,7 @@ http {
 lua_package_path "/opt/lua-resty-rate-limit/lib/?.lua;;";
 
 upstream api {
-    server unix:/tmp/api.sock;
+    server unix:/run/api.sock;
 }
 
 server {
