@@ -35,7 +35,7 @@ local function bump_request(connection, key, rate, interval, current_time, log_l
         reset = (current_time + (ttl * 0.001))
     end
 
-    local ok, error = redis_connection:set_keepalive(10000, 16)
+    local ok, error = redis_connection:set_keepalive(10000, 100)
     if not ok then
         ngx.log(log_level, "failed to set keepalive: ", error)
     end
