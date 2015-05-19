@@ -41,7 +41,7 @@ server {
                             rate = 40,
                             interval = 10,
                             log_level = ngx.NOTICE,
-                            redis_config = { host = "127.0.0.1", port = 6379, timeout = 1 } }
+                            redis_config = { host = "127.0.0.1", port = 6379, timeout = 1, pool_size = 100 } }
         ';
 
         proxy_set_header  Host               $host;
@@ -65,4 +65,4 @@ You can customize the rate limiting options by changing the following values:
 * rate: The number of requests to allow within the specified interval
 * interval: The number of seconds before the bucket expires
 * log_level: Set an Nginx log level. All errors from this plugin will be dumped here
-* redis_config: The Redis host and port to connect to
+* redis_config: The Redis host, port, timeout and pool size
