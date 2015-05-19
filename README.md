@@ -41,7 +41,7 @@ server {
                             rate = 40,
                             interval = 10,
                             log_level = ngx.NOTICE,
-                            redis_config = { host = "127.0.0.1", port = 6379, timeout = 1 } }
+                            redis_config = { host = "127.0.0.1", port = 6379, timeout = 1, pool_size = 100 } }
         ';
 
         proxy_set_header  Host               $host;

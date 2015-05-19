@@ -10,7 +10,7 @@ local function expire_key(redis_connection, key, interval)
     end
 end
 
-local function bump_request(connection, key, rate, interval, current_time, log_level)
+local function bump_request(connection, redis_pool_size, key, rate, interval, current_time, log_level)
     local redis_connection = connection
 
     local count, error = redis_connection:incr(key)
@@ -35,7 +35,7 @@ local function bump_request(connection, key, rate, interval, current_time, log_l
         reset = (current_time + (ttl * 0.001))
     end
 
-    local ok, error = redis_connection:set_keepalive(10000, 100)
+    local ok, error = redis_connection:set_keepalive(10000, redis_pool_size)
     if not ok then
         ngx.log(log_level, "failed to set keepalive: ", error)
     end
@@ -59,6 +59,7 @@ function _M.limit(config)
         redis_config.timeout = redis_config.timeout or 1
         redis_config.host = redis_config.host or "127.0.0.1"
         redis_config.port = redis_config.port or 6379
+        redis_config.pool_size = redis_config.pool_size or 100
 
         local redis_connection = redis:new()
         redis_connection:set_timeout(redis_config.timeout * 1000)
@@ -69,16 +70,18 @@ function _M.limit(config)
             return
         end
 
+        config.redis_config = redis_config
         config.connection = redis_connection
     end
 
     local current_time = ngx.now()
     local connection = config.connection
+    local redis_pool_size = config.redis_config.pool_size
     local key = config.key or ngx.var.remote_addr
     local rate = config.rate or 10
     local interval = config.interval or 1
 
-    local response, error = bump_request(connection, key, rate, interval, current_time, log_level)
+    local response, error = bump_request(connection, redis_pool_size, key, rate, interval, current_time, log_level)
     if not response then
         return
     end
