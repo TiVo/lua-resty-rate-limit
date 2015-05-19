@@ -65,4 +65,4 @@ You can customize the rate limiting options by changing the following values:
 * rate: The number of requests to allow within the specified interval
 * interval: The number of seconds before the bucket expires
 * log_level: Set an Nginx log level. All errors from this plugin will be dumped here
-* redis_config: The Redis host and port to connect to
+* redis_config: The Redis host, port, timeout and pool size
