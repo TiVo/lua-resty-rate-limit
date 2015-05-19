@@ -10,9 +10,7 @@ local function expire_key(redis_connection, key, interval)
     end
 end
 
-local function bump_request(connection, redis_pool_size, key, rate, interval, current_time, log_level)
-    local redis_connection = connection
-
+local function bump_request(redis_connection, redis_pool_size, key, rate, interval, current_time, log_level)
     local count, error = redis_connection:incr(key)
     if not count then
         ngx.log(log_level, "failed to incr count: ", error)
