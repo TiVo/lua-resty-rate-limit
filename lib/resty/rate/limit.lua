@@ -44,7 +44,7 @@ local function bump_request(redis_connection, redis_pool_size, key, rate, interv
 end
 
 function _M.limit(config)
-    local log_level = config.log_level or ngx.NOTICE
+    local log_level = config.log_level or ngx.ERR
 
     if not config.connection then
         local ok, redis = pcall(require, "resty.redis")
