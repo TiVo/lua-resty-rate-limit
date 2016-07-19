@@ -43,12 +43,15 @@ server {
                             rate = 40,
                             interval = 10,
                             log_level = ngx.NOTICE,
-                            redis_config = { host = "127.0.0.1", port = 6379, timeout = 1, pool_size = 100 } }
+                            redis_config = { host = "127.0.0.1", port = 6379, timeout = 1, pool_size = 100 },
+                            whitelisted_api_keys = { 'XXX', 'ZZZ' } }
         ';
 
         proxy_set_header  Host               $host;
+        proxy_set_header  X-Server-Scheme    $scheme;
         proxy_set_header  X-Real-IP          $remote_addr;
         proxy_set_header  X-Forwarded-For    $remote_addr;
+        proxy_set_header  X-Forwarded-Proto  $x_forwarded_proto;
 
         proxy_connect_timeout  1s;
         proxy_read_timeout     30s;
