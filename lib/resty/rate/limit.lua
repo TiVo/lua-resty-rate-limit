@@ -48,8 +48,9 @@ end
 function _M.limit(config)
     local uri_parameters = ngx.req.get_uri_args()
     local enforce_limit = true
+    local whitelisted_api_keys = config.whitelisted_api_keys or {}
 
-    for i, api_key in ipairs(config.whitelisted_api_keys) do
+    for i, api_key in ipairs(whitelisted_api_keys) do
         if api_key == uri_parameters.api_key then
             enforce_limit = false
         end
