@@ -44,7 +44,7 @@ server {
                             interval = 10,
                             log_level = ngx.NOTICE,
                             redis_config = { host = "127.0.0.1", port = 6379, timeout = 1, pool_size = 100 },
-                            whitelisted_api_keys = { 'XXX', 'ZZZ' } }
+                            whitelisted_api_keys = { "XXX", "ZZZ" } }
         ';
 
         proxy_set_header  Host               $host;
@@ -64,8 +64,9 @@ server {
 ### Config Values
 You can customize the rate limiting options by changing the following values:
 
-* key: The value to use as a unique identifier in Redis.
+* key: The value to use as a unique identifier in Redis
 * rate: The number of requests to allow within the specified interval
 * interval: The number of seconds before the bucket expires
 * log_level: Set an Nginx log level. All errors from this plugin will be dumped here
 * redis_config: The Redis host, port, timeout and pool size
+* whitelisted_api_keys: A lua table of API keys to skip the rate limit checks for
