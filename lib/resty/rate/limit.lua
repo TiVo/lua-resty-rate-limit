@@ -2,7 +2,7 @@ _M = { _VERSION = "1.0" }
 
 local reset = 0
 
-local function expire_key(redis_connection, key, interval)
+local function expire_key(redis_connection, key, interval, log_level)
     local expire, error = redis_connection:expire(key, interval)
     if not expire then
         ngx.log(log_level, "failed to get ttl: ", error)
@@ -21,7 +21,7 @@ local function bump_request(redis_connection, redis_pool_size, ip_key, rate, int
 
     if tonumber(count) == 1 then
         reset = (current_time + interval)
-        expire_key(redis_connection, key, interval)
+        expire_key(redis_connection, key, interval, log_level)
     else
         local ttl, error = redis_connection:pttl(key)
         if not ttl then
@@ -30,7 +30,7 @@ local function bump_request(redis_connection, redis_pool_size, ip_key, rate, int
         end
         if ttl == -1 then
             ttl = interval
-            expire_key(redis_connection, key, interval)
+            expire_key(redis_connection, key, interval, log_level)
         end
         reset = (current_time + (ttl * 0.001))
     end
