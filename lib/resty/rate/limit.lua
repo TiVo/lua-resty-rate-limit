@@ -103,6 +103,7 @@ function _M.limit(config)
                 retry_after = 0
             end
 
+            ngx.header["Access-Control-Expose-Headers"] = "Retry-After"
             ngx.header["Access-Control-Allow-Origin"] = "*"
             ngx.header["Content-Type"] = "application/json; charset=utf-8"
             ngx.header["Retry-After"] = retry_after
