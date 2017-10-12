@@ -50,10 +50,8 @@ function _M.limit(config)
     local enforce_limit = true
     local whitelisted_api_keys = config.whitelisted_api_keys or {}
 
-    for i, api_key in ipairs(whitelisted_api_keys) do
-        if api_key == uri_parameters.api_key then
-            enforce_limit = false
-        end
+    if config.whitelisted_api_keys[uri_parameters.api_key] then
+        enforce_limit = false
     end
 
     if enforce_limit then

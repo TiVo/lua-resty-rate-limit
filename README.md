@@ -1,7 +1,7 @@
 ## OpenResty Redis Backed Rate Limiter
 This is a OpenResty Lua and Redis powered rate limiter. You can specify the number of requests to allow within a certain timespan, ie. 40 requests within 10 seconds. With this setting (as an example), you can burst to 40 requests in a single second if you wanted, but would have to wait 9 more seconds before being allowed to issue another.
 
-One of the key reasons we built this was to be able to share the rate limit across our entire API fleet as opposed to individually on each instance.
+One of the key reasons we built this was to be able to share the rate limit across our entire API fleet as opposed to individually on each instance. We've tested this to be stable with a single Redis instance processing over 20,000 requests per second.
 
 lua-resty-rate-limit is considered production ready and is currently being used to power our rate limiting at [The Movie Database (TMDb)](https://www.themoviedb.org).
 
@@ -46,7 +46,7 @@ server {
                             interval = 10,
                             log_level = ngx.NOTICE,
                             redis_config = { host = "127.0.0.1", port = 6379, timeout = 1, pool_size = 100 },
-                            whitelisted_api_keys = { "XXX", "ZZZ" } }
+                            whitelisted_api_keys = { ["XXX"] = true, ["ZZZ"] = true } }
         ';
 
         proxy_set_header  Host               $host;
